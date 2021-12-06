@@ -1,0 +1,33 @@
+version: '3.3'
+services:
+    goatandwolf:
+        ports:
+            - '127.0.0.1:80:8888'
+            - '127.0.0.1:9090:9090'
+        environment:
+            - TZ=Europe/Amsterdam
+        image: 'webgoat/goatandwolf:v8.2.2'
+    zaproxy:
+        image: 'owasp/zap2docker-bare:2.7.0'
+        command: [
+            "zap.sh",
+            "-daemon",
+            "-host", "0.0.0.0", "-port", "8080",
+            "-config", "api.disablekey=true",
+            "-config", "api.addrs.addr.name=.*",
+            "-config", "api.addrs.addr.regex=true"
+            ]
+        ports:
+            -  "127.0.0.1:8090:8090"
+    haproxy-waf:
+        environment:
+            - TZ=Europe/Vienna
+            - STATS_PORT=1999
+            - STATS_USER=aaa
+            - STATS_PASSWORD=bbb
+            - 'SYSLOG_ADDRESS=127.0.0.1:8514'
+            - SERVICE_TCP_PORT=13443
+            - SERVICE_NAME=test-haproxy
+            - SERVICE_DEST_PORT=8080
+            - SERVICE_DEST=127.0.0.0
+        image: 'me2digital/haproxy-waf' 

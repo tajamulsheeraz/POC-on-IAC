@@ -1,0 +1,22 @@
+---
+- name: Docker_depployment
+  hosts: test_client_hosts
+  become: true
+  become_user: root
+  tasks:
+    - name: update repo
+      apt: 
+        upgrade: yes
+        update_cache: yes
+    - name: Install Docker
+      apt:
+        name: 
+          - docker.io
+          - docker-compose
+        state: present
+    - name: docker-compose file
+      copy:
+        src: docker-compose.yml
+        dest: /home/ubuntu/
+    - name: run docker compose
+      command: sudo docker-compose -f /home/ubuntu/docker-compose.yml up -d
